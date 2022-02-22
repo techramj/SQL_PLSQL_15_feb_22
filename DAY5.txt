@@ -1,0 +1,187 @@
+-- WAQ to find the list of employees who have no commission
+-- WAQ to  display department wise sum of salary for the group whose avg salary is >8000    
+SELECT salary FROM employees e
+GROUP BY department_id HAVING SUM(e.salary) >
+                        (SELECT AVG(salary) FROM employees
+                        GROUP BY department_id);
+                        
+ SELECT department_id, SUM(salary)
+ FROM employees
+ GROUP BY department_id
+ HAVING AVG(salary) > 8000;
+                        
+
+-- WAQ to find the name of emplyoees having highest salary
+   select employee_name from employees group by department_id having max(salary);  --syntax are wrong
+   
+   select name from employees having max(salary); 
+   
+   select *from employees where salary = max(salary);
+   
+   --select ename from emp where salary=(select max(salary) from emp);
+  
+-- WAQ to find the avg salary of commission
+   SELECT AVG(NVL(commission_pct,0)) FROM employees;
+
+
+-- WAQ to find the sum of salary for each year(hint: group by year)
+
+    SELECT to_char(hire_date,'YYYY'), SUM(salary), COUNT(*)
+    FROM employees
+    GROUP BY to_char(hire_date,'YYYY')
+    ORDER BY to_char(hire_date,'YYYY');
+
+SELECT * FROM employees
+WHERE NVL(commission_pct,0)=0;
+
+SELECT * FROM employees
+WHERE commission_pct IS NOT NULL;
+
+SELECT * FROM employees;
+
+--sub query and introduction of Join
+
+--employees whose salary > Abel's salary
+-- employees whose salary >10000
+SELECT * FROM employees
+WHERE salary>11000;
+
+SELECT salary FROM employees WHERE last_name ='Grant';
+
+SELECT * FROM employees
+WHERE salary>ALL(SELECT salary FROM employees WHERE last_name ='Grant');
+
+SELECT * FROM employees WHERE employee_id=100;
+SELECT SUM(salary) FROM employees;
+
+--Type of sub query
+   --SIngle row sub query
+   --Multiple row sub query
+RULE: USE SINGLE ROW operation FOR SINGLE ROW subquery AND multiple ROW OPERATOR FOR multiple ROW subquery
+      USE ALL clause EXCEPT ORDER BY IN sub QUERY
+
+Multiple ROW OPERATOR  => IN  ANY ALL 
+
+
+salary >ALL(7000,2600)  ==> salary>7000 AND salary>2600
+salary >ANY(7000,2600)  ==> salary>7000 OR salary>2600
+
+--employees having same job that of Grant
+SELECT * FROM employees
+WHERE job_id IN (SELECT job_id FROM employees WHERE last_name ='Grant' )
+ORDER BY job_id;
+
+-- WAQ to find the name of emplyoees having highest salary
+SELECT * FROM employees
+WHERE salary = (SELECT MAX(salary) FROM employees);
+
+SELECT * FROM employees;
+
+SELECT last_name
+FROM employees 
+WHERE employee_id IN (SELECT manager_id FROM employees WHERE last_name = 'Kochhar');
+
+
+SELECT rownum,salary FROM (
+SELECT salary
+FROM employees
+ORDER BY salary DESC);
+
+--to find the 2nd highest salary
+SELECT MAX(salary) 
+FROM employees
+WHERE salary < (SELECT MAX(salary) FROM employees);
+
+--to find the 3rd highest salary
+
+SELECT MAX(salary) 
+FROM employees
+WHERE salary <(SELECT MAX(salary) 
+FROM employees
+WHERE salary < (SELECT MAX(salary) FROM employees));
+
+SELECT MIN(salary) FROM (SELECT  DISTINCT salary
+                        FROM employees
+                        ORDER BY salary DESC)
+WHERE ROWNUM<=3;
+
+
+--name of managers
+SELECT * FROM employees
+WHERE employee_id IN (SELECT manager_id FROM employees);
+
+--name of employee who is not a manager
+SELECT * FROM employees
+WHERE employee_id NOT IN (SELECT manager_id FROM employees WHERE manager_id IS NOT NULL);
+
+SELECT * FROM employees
+WHERE employee_id NOT IN (SELECT NVL(manager_id,0) FROM employees);
+
+
+
+--Join
+  NATURAL JOIN
+  INNER JOIN
+  OUTER JOIN
+        LEFT OUTER JOIN
+        RIGHT OUTER JOIN
+        FULL OUTER JOIN
+  equi JOIN
+  Non equi JOIN
+  SELF JOIN
+  CROSS JOIN
+  
+  RULE:
+  1. IF THE COLUMN IS PRESENT IN BOTH THE TABLE THAN USE qualifier TO that COLUMN
+  2. COLUMN AS a part OF USING clause cannot have qualifier
+  
+  
+  SELECT * FROM departmnets;
+  
+  
+ select employee_id, last_name, department_id, department_name, 
+ employees.manager_id, departments.manager_id AS dept_manager_id
+ from employees join departments 
+ using(department_id);
+ 
+ select employee_id, last_name, department_id, department_name, e.manager_id
+ from employees e join departments d
+ using(department_id);
+ 
+ select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e join departments d
+ ON e.department_id = d.department_id;
+ 
+  select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e LEFT OUTER join departments d
+ ON e.department_id = d.department_id;
+ 
+   select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e RIGHT OUTER join departments d
+ ON e.department_id = d.department_id;
+ 
+   select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e FULL OUTER join departments d
+ ON e.department_id = d.department_id;
+ 
+ 
+ 
+ 
+ 
+ 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
