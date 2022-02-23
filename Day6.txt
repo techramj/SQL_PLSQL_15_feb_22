@@ -1,0 +1,328 @@
+-- WAQ to find the list of employees who have no commission
+-- WAQ to  display department wise sum of salary for the group whose avg salary is >8000    
+SELECT salary FROM employees e
+GROUP BY department_id HAVING SUM(e.salary) >
+                        (SELECT AVG(salary) FROM employees
+                        GROUP BY department_id);
+                        
+ SELECT department_id, SUM(salary)
+ FROM employees
+ GROUP BY department_id
+ HAVING AVG(salary) > 8000;
+                        
+
+-- WAQ to find the name of emplyoees having highest salary
+   select employee_name from employees group by department_id having max(salary);  --syntax are wrong
+   
+   select name from employees having max(salary); 
+   
+   select *from employees where salary = max(salary);
+   
+   --select ename from emp where salary=(select max(salary) from emp);
+  
+-- WAQ to find the avg salary of commission
+   SELECT AVG(NVL(commission_pct,0)) FROM employees;
+
+
+-- WAQ to find the sum of salary for each year(hint: group by year)
+
+    SELECT to_char(hire_date,'YYYY'), SUM(salary), COUNT(*)
+    FROM employees
+    GROUP BY to_char(hire_date,'YYYY')
+    ORDER BY to_char(hire_date,'YYYY');
+
+SELECT * FROM employees
+WHERE NVL(commission_pct,0)=0;
+
+SELECT * FROM employees
+WHERE commission_pct IS NOT NULL;
+
+SELECT * FROM employees;
+
+--sub query and introduction of Join
+
+--employees whose salary > Abel's salary
+-- employees whose salary >10000
+SELECT * FROM employees
+WHERE salary>11000;
+
+SELECT salary FROM employees WHERE last_name ='Grant';
+
+SELECT * FROM employees
+WHERE salary>ALL(SELECT salary FROM employees WHERE last_name ='Grant');
+
+SELECT * FROM employees WHERE employee_id=100;
+SELECT SUM(salary) FROM employees;
+
+--Type of sub query
+   --SIngle row sub query
+   --Multiple row sub query
+RULE: USE SINGLE ROW operation FOR SINGLE ROW subquery AND multiple ROW OPERATOR FOR multiple ROW subquery
+      USE ALL clause EXCEPT ORDER BY IN sub QUERY
+
+Multiple ROW OPERATOR  => IN  ANY ALL 
+
+
+salary >ALL(7000,2600)  ==> salary>7000 AND salary>2600
+salary >ANY(7000,2600)  ==> salary>7000 OR salary>2600
+
+--employees having same job that of Grant
+SELECT * FROM employees
+WHERE job_id IN (SELECT job_id FROM employees WHERE last_name ='Grant' )
+ORDER BY job_id;
+
+-- WAQ to find the name of emplyoees having highest salary
+SELECT * FROM employees
+WHERE salary = (SELECT MAX(salary) FROM employees);
+
+SELECT * FROM employees;
+
+SELECT last_name
+FROM employees 
+WHERE employee_id IN (SELECT manager_id FROM employees WHERE last_name = 'Kochhar');
+
+
+SELECT rownum,salary FROM (
+SELECT salary
+FROM employees
+ORDER BY salary DESC);
+
+--to find the 2nd highest salary
+SELECT MAX(salary) 
+FROM employees
+WHERE salary < (SELECT MAX(salary) FROM employees);
+
+--to find the 3rd highest salary
+
+SELECT MAX(salary) 
+FROM employees
+WHERE salary <(SELECT MAX(salary) 
+FROM employees
+WHERE salary < (SELECT MAX(salary) FROM employees));
+
+SELECT MIN(salary) FROM (SELECT  DISTINCT salary
+                        FROM employees
+                        ORDER BY salary DESC)
+WHERE ROWNUM<=3;
+
+
+--name of managers
+SELECT * FROM employees
+WHERE employee_id IN (SELECT manager_id FROM employees);
+
+--name of employee who is not a manager
+SELECT * FROM employees
+WHERE employee_id NOT IN (SELECT manager_id FROM employees WHERE manager_id IS NOT NULL);
+
+SELECT * FROM employees
+WHERE employee_id NOT IN (SELECT NVL(manager_id,0) FROM employees);
+
+
+
+--Join
+  NATURAL JOIN
+  INNER JOIN
+  OUTER JOIN
+        LEFT OUTER JOIN
+        RIGHT OUTER JOIN
+        FULL OUTER JOIN
+  equi JOIN
+  Non equi JOIN
+  SELF JOIN
+  CROSS JOIN
+  
+  RULE:
+  1. IF THE COLUMN IS PRESENT IN BOTH THE TABLE THAN USE qualifier TO that COLUMN
+  2. COLUMN AS a part OF USING clause cannot have qualifier
+  
+  
+  SELECT * FROM departmnets;
+  
+  
+ select employee_id, last_name, department_id, department_name, 
+ employees.manager_id, departments.manager_id AS dept_manager_id
+ from employees join departments 
+ using(department_id);
+ 
+ select employee_id, last_name, department_id, department_name, e.manager_id
+ from employees e join departments d
+ using(department_id);
+ 
+ --INNER JOIN
+ select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e join departments d
+ ON e.department_id = d.department_id;
+ 
+                 --OR
+  select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e INNER join departments d
+ ON e.department_id = d.department_id;  
+  
+                 --OR anSI 1999
+ select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e , departments d
+ WHERE e.department_id = d.department_id;  
+  
+ 
+ --OUTER JOIN
+ --LEFT OUTER JOIN
+  select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e LEFT OUTER join departments d
+ ON e.department_id = d.department_id;
+ 
+    --OR anSI 1999
+ select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e , departments d
+ WHERE e.department_id = d.department_id(+); 
+ 
+ 
+ -- RIGHT OUTER JOIN
+   select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e RIGHT OUTER join departments d
+ ON e.department_id = d.department_id;
+ 
+     --OR anSI 1999
+ select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e , departments d
+ WHERE e.department_id(+) = d.department_id; 
+ 
+ 
+ --Full outer join
+   select e.employee_id, e.last_name, d.department_id, d.department_name
+ from employees e FULL OUTER join departments d
+ ON e.department_id = d.department_id;
+ 
+     --OR anSI 1999
+ 
+ 
+-->ansi 1999
+
+
+--EQUI AND NON EQUI
+
+SELECT * FROM JOB_GRADES;
+
+CREATE TABLE JOB_GRADES(
+GRADE CHAR,
+MIN_SAL NUMBER,
+MAX_SAL NUMBER);
+
+INSERT INTO JOB_GRADES(GRADE, MIN_SAL,MAX_SAL) VALUES  ('A',20000,50000);
+INSERT INTO JOB_GRADES(GRADE, MIN_SAL,MAX_SAL) VALUES  ('B',15000,19999);
+INSERT INTO JOB_GRADES(GRADE, MIN_SAL,MAX_SAL) VALUES  ('C',10000,14999);
+INSERT INTO JOB_GRADES(GRADE, MIN_SAL,MAX_SAL) VALUES  ('D',5000,9999);
+INSERT INTO JOB_GRADES(GRADE, MIN_SAL,MAX_SAL) VALUES  ('E',0,4999);
+
+SELECT e.last_name, e.salary, j.grade
+FROM employees e JOIN job_grades j 
+ON e.salary BETWEEN j.min_sal AND j.max_sal;
+
+
+--join with more than 2 tables
+
+SELECT e.employee_id, e.last_name, e.salary, d.department_name,
+l.city, c.country_name,g.grade
+FROM employees e JOIN departments d 
+ON e.department_id= d.department_id
+JOIN locations l
+ON d.location_id=l.location_id
+JOIN countries c
+ON l.country_id=c.country_id
+JOIN job_grades g
+ON e.salary BETWEEN g.min_sal AND g.max_sal;
+
+OR
+SELECT e.employee_id, e.last_name, e.salary, d.department_name,
+l.city, c.country_name
+FROM employees e , departments d ,locations l,countries c
+WHERE e.department_id= d.department_id
+AND d.location_id=l.location_id
+AND l.country_id=c.country_id;
+
+
+--SELF join
+
+Select e.employee_id, e.last_name, e.manager_id, m.last_name as manager_name
+from employees e LEFT join employees m
+ON e.manager_id =  m.employee_id
+
+ 
+ 
+ --WAQ to find the last_name and colleage_name
+ 
+ select e.last_name,m.last_name AS colleage_name 
+ from employees e join employees m 
+ on m.department_id=e.department_id
+ WHERE e.department_id not in (50,80)
+ AND m.employee_id != e.employee_id;
+ 
+
+
+--employees working in city Toronto
+ 
+  
+SELECT  e.last_name
+FROM employees e JOIN departments d 
+ON e.department_id= d.department_id
+JOIN locations l
+ON d.location_id=l.location_id
+WHERE l.city='Toronto';
+
+SELECT last_name FROM employees 
+WHERE department_id IN (SELECT department_id FROM departments 
+                        WHERE location_id IN (SELECT location_id 
+                                               FROM locations WHERE city='Toronto');                     
+                        );
+
+
+
+--CROSS join
+SELECT COUNT(*) FROM employees  CROSS JOIN departments ;
+SELECT COUNT(*) FROM employees  , departments ;
+
+SELECT COUNT(*) FROM employees e, employees m, employees b, employees c, employees d,employees f;
+
+
+--correlated subquery
+
+--WAQ to find the last_name, salary of employees whose salary is greater than avg salary of their dept
+
+SELECT e.last_name,e.salary, e.department_id--,
+--(SELECT ROUND(AVG(salary),2) FROM employees WHERE department_id=e.department_id) AS dept_avg_salary
+FROM employees e
+WHERE e.salary>=(SELECT AVG(salary) FROM employees WHERE department_id=e.department_id);
+
+SELECT e.last_name,e.salary, e.department_id
+FROM employees e JOIN (SELECT department_id, AVG(salary) AS avg_sal 
+                       FROM employees GROUP BY department_id) d
+ON e.department_id= d.department_id
+AND e.salary >= d.avg_sal;
+
+
+Id  name  salary
+1    a      1000
+2    b      2000
+3    
+
+1. waq TO DELETE salary 1000  DELETE emp WHERE salary =1000;  => wrong
+2.  waq TO INSERT c AND 3000 . INSERT INTO emp(NAME,salary) VALUES ('c',3000); =>wrong
+
+
+UPDATE emp
+SET salary =nul
+WHERE ID=1;
+
+UPDATE emp
+SET NAME='C', salary =3000
+WHERE ID=3;
+
+
+
+
+
+
+
+
+
+
+
